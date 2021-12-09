@@ -11,8 +11,15 @@ app.get('/api', (req, res) => {
 });
 
 app.post('/api/posts', verifyToken, (req, res) => {
-  res.json({
-    message: 'post created dude'
+  jwt.verify(req.token, 'secretkey', async (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      await res.json({
+        message: 'post created dude',
+        authData,
+      });
+    }
   });
 });
 
@@ -24,7 +31,7 @@ app.post('/api/login', (req, res) => {
     email: 'ryan@gmail.com',
   };
 
-  jwt.sign({user}, 'secretkey', async (err, token) => {
+  jwt.sign({user}, 'secretkey', { expiresIn: '30s' }, async (err, token) => {
     await res.json({
       token
     });
