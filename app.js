@@ -10,7 +10,7 @@ app.get('/api', (req, res) => {
   });
 });
 
-app.post('/api/posts', (req, res) => {
+app.post('/api/posts', verifyToken, (req, res) => {
   res.json({
     message: 'post created dude'
   });
@@ -30,5 +30,26 @@ app.post('/api/login', (req, res) => {
     });
   });
 });
+
+//token formatiing
+
+
+//verifying da token
+function verifyToken(req, res, next) {
+  //getting the auth
+  const bearerHeader = req.headers['authorization'];
+  if (typeof bearerHeader !== 'undefined') {
+    //splitting at the space
+    const bearer = bearerHeader.split(' ');
+    //Auth looks like this: Bearer <access_token>
+    //to understand: split() splits the string above into two substrings, so you get 'Bearer' and '<access_token>', so the second string in the array is gonna be the token you want
+    const bearerToken = bearer[1];
+    //getting it and then we send it
+    req.token = bearerToken;
+    next(); //and then next middleware for some rsn
+  } else {
+    res.sendStatus(403);
+  }
+}
 
 app.listen(PORT, () => console.log(`Da serv iz runnin on port ${PORT}`));
